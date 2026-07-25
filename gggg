@@ -1,0 +1,169 @@
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+local ScreenGui = Instance.new("ScreenGui", LP:WaitForChild("PlayerGui"))
+ScreenGui.Name = "AmineUI"
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 340, 0, 540)
+MainFrame.Position = UDim2.new(0.5, -170, 0.5, -270)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(60, 150, 255)
+MainStroke.Thickness = 2
+
+local TitleLabel = Instance.new("TextLabel", MainFrame)
+TitleLabel.Size = UDim2.new(1, -20, 0, 40)
+TitleLabel.Position = UDim2.new(0, 15, 0, 10)
+TitleLabel.Text = "AMIN HUB"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextSize = 20
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local SubTitle = Instance.new("TextLabel", MainFrame)
+SubTitle.Size = UDim2.new(1, -20, 0, 20)
+SubTitle.Position = UDim2.new(0, 15, 0, 35)
+SubTitle.Text = "Made by AMIN"
+SubTitle.TextColor3 = Color3.fromRGB(160, 160, 160)
+SubTitle.BackgroundTransparency = 1
+SubTitle.TextSize = 12
+SubTitle.Font = Enum.Font.GothamMedium
+SubTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local ScrollingFrame = Instance.new("ScrollingFrame", MainFrame)
+ScrollingFrame.Size = UDim2.new(1, -20, 1, -85)
+ScrollingFrame.Position = UDim2.new(0, 10, 0, 70)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 600)
+ScrollingFrame.ScrollBarThickness = 4
+
+local UIList = Instance.new("UIListLayout", ScrollingFrame)
+UIList.Padding = UDim.new(0, 8)
+UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local function createFeature(name, callback)
+    local MainBtn = Instance.new("TextButton", ScrollingFrame)
+    MainBtn.Size = UDim2.new(0.95, 0, 0, 40)
+    MainBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    MainBtn.Text = name .. ": OFF"
+    MainBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MainBtn.TextSize = 13
+    MainBtn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(0, 6)
+
+    local toggled = false
+    MainBtn.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        MainBtn.Text = name .. (toggled and ": ON" or ": OFF")
+        MainBtn.BackgroundColor3 = toggled and Color3.fromRGB(50, 130, 80) or Color3.fromRGB(35, 35, 50)
+        callback(toggled)
+    end)
+end
+
+createFeature("ESP", function(on) _G.ESPEnabled = on end)
+createFeature("AIMBOT", function(on) _G.AimbotEnabled = on end)
+createFeature("YOUR GANG", function(on) _G.YourGangEnabled = on end)
+createFeature("FLY", function(on) 
+    _G.FlyEnabled = on
+    local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if on and root then
+        local bv = Instance.new("BodyVelocity", root)
+        bv.Name = "AmineFlyVel"
+        bv.MaxForce = Vector3.new(99999, 99999, 99999)
+        bv.Velocity = Vector3.new(0, 0, 0)
+        _G.FlyBV = bv
+    else
+        if _G.FlyBV then _G.FlyBV:Destroy() end
+    end
+end)
+createFeature("DESYNC", function(on) _G.DesyncEnabled = on end)
+createFeature("INSTANT TP", function(on) _G.TPEnabled = on end)
+createFeature("HIDE NAME", function(on) 
+    local char = LP.Character
+    if char then
+        for _, v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") then v.Transparency = on and 1 or 0 end
+        end
+    end
+end)
+createFeature("BYPASS WALLS", function(on) _G.WallEnabled = on end)
+
+local TargetPopup = Instance.new("Frame", MainFrame)
+TargetPopup.Size = UDim2.new(0, 220, 0, 350)
+TargetPopup.Position = UDim2.new(-1, -10, 0, 0)
+TargetPopup.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+TargetPopup.Visible = false
+TargetPopup.ZIndex = 10
+Instance.new("UICorner", TargetPopup).CornerRadius = UDim.new(0, 8)
+local TargetStroke = Instance.new("UIStroke", TargetPopup)
+TargetStroke.Color = Color3.fromRGB(60, 150, 255)
+TargetStroke.Thickness = 2
+
+local TargetScroll = Instance.new("ScrollingFrame", TargetPopup)
+TargetScroll.Size = UDim2.new(0.9, 0, 0.85, 0)
+TargetScroll.Position = UDim2.new(0.05, 0, 0.08, 0)
+TargetScroll.BackgroundTransparency = 1
+TargetScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+TargetScroll.ScrollBarThickness = 3
+TargetScroll.ZIndex = 11
+
+local TargetListLayout = Instance.new("UIListLayout", TargetScroll)
+TargetListLayout.Padding = UDim.new(0, 5)
+TargetListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+_G.IgnoredPlayers = {}
+
+local function updateTargetList()
+    for _, child in pairs(TargetScroll:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LP then
+            local pBtn = Instance.new("TextButton", TargetScroll)
+            pBtn.Size = UDim2.new(1, 0, 0, 35)
+            pBtn.BackgroundColor3 = _G.IgnoredPlayers[p.Name] and Color3.fromRGB(150, 50, 50) or Color3.fromRGB(35, 35, 50)
+            pBtn.Text = "IGNORE: " .. p.Name
+            pBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            pBtn.TextSize = 11
+            pBtn.Font = Enum.Font.GothamBold
+            pBtn.ZIndex = 11
+            Instance.new("UICorner", pBtn).CornerRadius = UDim.new(0, 6)
+            
+            pBtn.MouseButton1Click:Connect(function()
+                _G.IgnoredPlayers[p.Name] = not _G.IgnoredPlayers[p.Name]
+                pBtn.BackgroundColor3 = _G.IgnoredPlayers[p.Name] and Color3.fromRGB(150, 50, 50) or Color3.fromRGB(35, 35, 50)
+            end)
+        end
+    end
+    TargetScroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 40)
+end
+
+local TargetMenuBtn = Instance.new("TextButton", ScrollingFrame)
+TargetMenuBtn.Size = UDim2.new(0.95, 0, 0, 40)
+TargetMenuBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+TargetMenuBtn.Text = "FAST LOCATIONS"
+TargetMenuBtn.TextColor3 = Color3.fromRGB(255, 200, 50)
+TargetMenuBtn.TextSize = 12
+TargetMenuBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", TargetMenuBtn).CornerRadius = UDim.new(0, 6)
+
+TargetMenuBtn.MouseButton1Click:Connect(function()
+    TargetPopup.Visible = not TargetPopup.Visible
+    if TargetPopup.Visible then
+        updateTargetList()
+    end
+end)
+
+RunService.Stepped:Connect(function()
+    if _G.WallEnabled and LP.Character then
+        for _, part in pairs(LP.Character:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
+        end
+    end
+end)
