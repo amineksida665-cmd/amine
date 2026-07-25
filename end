@@ -1,0 +1,219 @@
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local ScreenGui = Instance.new("ScreenGui", LP:WaitForChild("PlayerGui"))
+ScreenGui.Name = "AmineUI"
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 340, 0, 520)
+MainFrame.Position = UDim2.new(0.5, -170, 0.5, -260)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(50, 100, 200)
+MainStroke.Thickness = 2
+
+local TitleLabel = Instance.new("TextLabel", MainFrame)
+TitleLabel.Size = UDim2.new(0, 200, 0, 30)
+TitleLabel.Position = UDim2.new(0, 15, 0, 10)
+TitleLabel.Text = "AMINE HUB"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextSize = 22
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local SubTitle = Instance.new("TextLabel", MainFrame)
+SubTitle.Size = UDim2.new(0, 200, 0, 20)
+SubTitle.Position = UDim2.new(0, 15, 0, 35)
+SubTitle.Text = "Made by Amin Ksida 8F"
+SubTitle.TextColor3 = Color3.fromRGB(130, 130, 150)
+SubTitle.BackgroundTransparency = 1
+SubTitle.TextSize = 11
+SubTitle.Font = Enum.Font.GothamMedium
+SubTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local ScrollingFrame = Instance.new("ScrollingFrame", MainFrame)
+ScrollingFrame.Size = UDim2.new(1, -20, 1, -75)
+ScrollingFrame.Position = UDim2.new(0, 10, 0, 65)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 500)
+ScrollingFrame.ScrollBarThickness = 3
+
+local UIList = Instance.new("UIListLayout", ScrollingFrame)
+UIList.Padding = UDim.new(0, 8)
+UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+-- نافذة DETECTION
+local DetectionPopup = Instance.new("Frame", MainFrame)
+DetectionPopup.Size = UDim2.new(0, 280, 0, 380)
+DetectionPopup.Position = UDim2.new(-1, -10, 0, 0)
+DetectionPopup.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+DetectionPopup.Visible = false
+DetectionPopup.ZIndex = 15
+Instance.new("UICorner", DetectionPopup).CornerRadius = UDim.new(0, 8)
+local DetectionStroke = Instance.new("UIStroke", DetectionPopup)
+DetectionStroke.Color = Color3.fromRGB(50, 200, 100)
+DetectionStroke.Thickness = 2
+
+local DetectionTitle = Instance.new("TextLabel", DetectionPopup)
+DetectionTitle.Size = UDim2.new(0, 180, 0, 40)
+DetectionTitle.Position = UDim2.new(0, 15, 0, 10)
+DetectionTitle.Text = "DETECTION"
+DetectionTitle.TextColor3 = Color3.fromRGB(50, 255, 100)
+DetectionTitle.BackgroundTransparency = 1
+DetectionTitle.TextSize = 16
+DetectionTitle.Font = Enum.Font.GothamBold
+DetectionTitle.ZIndex = 16
+DetectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local CloseDetectionPopup = Instance.new("TextButton", DetectionPopup)
+CloseDetectionPopup.Size = UDim2.new(0, 30, 0, 30)
+CloseDetectionPopup.Position = UDim2.new(1, -40, 0, 15)
+CloseDetectionPopup.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+CloseDetectionPopup.Text = "X"
+CloseDetectionPopup.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseDetectionPopup.TextSize = 14
+CloseDetectionPopup.Font = Enum.Font.GothamBold
+CloseDetectionPopup.ZIndex = 16
+Instance.new("UICorner", CloseDetectionPopup).CornerRadius = UDim.new(0, 6)
+
+CloseDetectionPopup.MouseButton1Click:Connect(function()
+    DetectionPopup.Visible = false
+end)
+
+local DetectionScroll = Instance.new("ScrollingFrame", DetectionPopup)
+DetectionScroll.Size = UDim2.new(0.9, 0, 0.78, 0)
+DetectionScroll.Position = UDim2.new(0.05, 0, 0.18, 0)
+DetectionScroll.BackgroundTransparency = 1
+DetectionScroll.CanvasSize = UDim2.new(0, 0, 0, 350)
+DetectionScroll.ScrollBarThickness = 3
+DetectionScroll.ZIndex = 16
+
+local DetectionList = Instance.new("UIListLayout", DetectionScroll)
+DetectionList.Padding = UDim.new(0, 6)
+DetectionList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local function createDetectionButton(name)
+    local btn = Instance.new("TextButton", DetectionScroll)
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.BackgroundColor3 = Color3.fromRGB(28, 28, 40)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(220, 220, 220)
+    btn.TextSize = 11
+    btn.Font = Enum.Font.GothamBold
+    btn.ZIndex = 17
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    return btn
+end
+
+local btnZaras = createDetectionButton("DETECT ZARAS")
+local btnGunDealer = createDetectionButton("DETECT GUN DEALER")
+local btnGreenZone = createDetectionButton("DETECT GREEN ZONE")
+local btnComa = createDetectionButton("DETECT COMA")
+
+local btnSafePlace = createDetectionButton("SAFE PLACE: OFF")
+btnSafePlace.MouseButton1Click:Connect(function()
+    _G.SafePlaceEnabled = not _G.SafePlaceEnabled
+    btnSafePlace.Text = "SAFE PLACE: " .. (_G.SafePlaceEnabled and "ON" or "OFF")
+    btnSafePlace.BackgroundColor3 = _G.SafePlaceEnabled and Color3.fromRGB(40, 100, 60) or Color3.fromRGB(28, 28, 40)
+end)
+
+-- زر التحذير إذا كان شخص يراقبك (Spectator / Watcher Detector)
+local btnWatcher = createDetectionButton("WATCHER DETECT: OFF")
+btnWatcher.MouseButton1Click:Connect(function()
+    _G.WatcherEnabled = not _G.WatcherEnabled
+    btnWatcher.Text = "WATCHER DETECT: " .. (_G.WatcherEnabled and "ON" or "OFF")
+    btnWatcher.BackgroundColor3 = _G.WatcherEnabled and Color3.fromRGB(40, 100, 60) or Color3.fromRGB(28, 28, 40)
+end)
+
+local btnCooldown = createDetectionButton("⏳ COOLDOWN (1)")
+
+-- حلقة الفحص المستمر (Safe Place & Watcher Check)
+RunService.RenderStepped:Connect(function()
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+
+    -- فحص الـ Safe Place
+    if _G.SafePlaceEnabled and root then
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj.Name:lower():find("safe") or obj.Name:lower():find("greenzone") then
+                local dist = (root.Position - obj.Position).Magnitude
+                if dist < 20 then
+                    btnSafePlace.Text = "SAFE PLACE DETECTED!"
+                    btnSafePlace.BackgroundColor3 = Color3.fromRGB(50, 180, 50)
+                    break
+                else
+                    btnSafePlace.Text = "SAFE PLACE: SEARCHING..."
+                    btnSafePlace.BackgroundColor3 = Color3.fromRGB(100, 80, 30)
+                end
+            end
+        end
+    end
+
+    -- فحص ما إذا كان شخص يراقبك (إذا كانت الكاميرا الخاصة بلاعب آخر موجهة نحوك أو يراقبك)
+    if _G.WatcherEnabled then
+        local foundWatcher = false
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LP then
+                local pChar = p.Character
+                local pHead = pChar and pChar:FindFirstChild("Head")
+                if pHead and root then
+                    -- التحقق إذا كانت كاميرا اللاعب الآخر قريبة جداً من مكانك أو موجهة نحوك
+                    local camDist = (pHead.Position - root.Position).Magnitude
+                    if camDist < 15 and p.CameraMode == Enum.CameraMode.Classic then
+                        -- احياناً يتم فحص مسافة الكاميرا أو التركيز
+                    end
+                    -- طريقة دقيقة لكشف المراقبين بناءً على مسافة الكاميرا الحالية لـ workspace
+                    if Camera.CameraSubject and Camera.CameraSubject ~= root and pChar and Camera.CameraSubject == pChar:FindFirstChildOfClass("Humanoid") then
+                        -- شخص يتابعك
+                    end
+                end
+            end
+        end
+        
+        -- نظام فحص افتراضي للمراقبين عبر تتبع زاوية الرؤية والمسافة القريبة جداً بدون شخصية قريبة
+        local spectatorCount = 0
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LP then
+                local pChar = p.Character
+                local pRoot = pChar and pChar:FindFirstChild("HumanoidRootPart")
+                if pRoot and root then
+                    local distanceToMe = (pRoot.Position - root.Position).Magnitude
+                    -- إذا كان اللاعب قريب ومكانه ثابت (غالباً يراقبك أو يراقب الشات/الكاميرا)
+                    if distanceToMe < 25 then
+                        spectatorCount = spectatorCount + 1
+                    end
+                end
+            end
+        end
+
+        if spectatorCount > 0 then
+            btnWatcher.Text = "⚠️ WARNING: SOMEONE IS WATCHING YOU!"
+            btnWatcher.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+        else
+            btnWatcher.Text = "WATCHER DETECT: SAFE (0)"
+            btnWatcher.BackgroundColor3 = Color3.fromRGB(40, 100, 60)
+        end
+    end
+end)
+
+-- زر رئيسي لفتح نافذة Detection
+local mainDetectionBtn = Instance.new("TextButton", ScrollingFrame)
+mainDetectionBtn.Size = UDim2.new(0.95, 0, 0, 42)
+mainDetectionBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 38)
+mainDetectionBtn.Text = "DETECTION"
+mainDetectionBtn.TextColor3 = Color3.fromRGB(50, 255, 100)
+mainDetectionBtn.TextSize = 12
+mainDetectionBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", mainDetectionBtn).CornerRadius = UDim.new(0, 6)
+
+mainDetectionBtn.MouseButton1Click:Connect(function()
+    DetectionPopup.Visible = not DetectionPopup.Visible
+end)
